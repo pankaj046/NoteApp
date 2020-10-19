@@ -142,7 +142,6 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                 int year = cal.get(Calendar.YEAR);
                 int month = cal.get(Calendar.MONTH);
                 int day = cal.get(Calendar.DAY_OF_MONTH);
-                cal.before(1);
                 DatePickerDialog dialog = new DatePickerDialog(
                         requireContext(), (datePicker, mYear,
                                            monthOfYear, dayOfMonth) -> {
@@ -151,6 +150,7 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                             dbYear = mYear;
                     binding.dateEt.setText(dayOfMonth + " " + getMonth("" + monthOfYear) + " " + mYear);
                 }, year, month, day);
+                dialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
                 dialog.show();
                 break;
 
@@ -169,6 +169,7 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                     dbMinute = minute;
                     binding.timeEt.setText(hourOfDay + ":" + minute + " " + am_pm);
                 }, mHour, mMinute, false);
+//                timePickerDialog.setT(10, 0, 0);
                 timePickerDialog.show();
                 break;
         }

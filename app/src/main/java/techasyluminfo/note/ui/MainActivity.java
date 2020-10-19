@@ -1,12 +1,15 @@
 package techasyluminfo.note.ui;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -15,22 +18,28 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import techasyluminfo.note.R;
 import techasyluminfo.note.adapter.NoteAdapter;
+import techasyluminfo.note.dao.NoteDao;
 import techasyluminfo.note.databinding.ActivityMainBinding;
 import techasyluminfo.note.model.NoteModel;
 import techasyluminfo.note.util.Constants;
 import techasyluminfo.note.util.PreferenceManager;
 import techasyluminfo.note.viewmodels.NoteViewModels;
 
+import static techasyluminfo.note.database.NoteRoomDatabase.INSTANCE;
+import static techasyluminfo.note.database.NoteRoomDatabase.databaseWriteExecutor;
+
 
 public class MainActivity extends AppCompatActivity {
 
     private NoteViewModels noteViewModels;
 
-   private NoteAdapter adapter;
+    private NoteAdapter adapter;
 
     private ActivityMainBinding binding;
 
@@ -73,6 +82,28 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT ) {
+//| ItemTouchHelper.DOWN | ItemTouchHelper.UP
+        @Override
+        public boolean onMove(@NonNull RecyclerView recyclerView,
+                              @NonNull RecyclerView.ViewHolder viewHolder,
+                              @NonNull RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+            int position = viewHolder.getAdapterPosition();
+
+            Objects.requireNonNull(noteViewModels.getAllWords().getValue()).remove(position);
+            databaseWriteExecutor.execute(() -> {
+                NoteDao dao = INSTANCE.noteDao();
+//                dao.deleteById(viewHolder.itemVie);
+            });
+            getData();
+
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -128,5 +159,7 @@ public class MainActivity extends AppCompatActivity {
     private void setAdapter(){
         adapter = new NoteAdapter(MainActivity.this);
         binding.noteListRv.setAdapter(adapter);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(binding.noteListRv);
     }
 }
