@@ -2,6 +2,7 @@ package techasyluminfo.note.ui;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.FragmentManager;
 
 import androidx.lifecycle.Observer;
@@ -11,12 +12,20 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AnimationUtils;
+import android.view.animation.LayoutAnimationController;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.button.MaterialButton;
 
 import java.util.Date;
 import java.util.List;
@@ -42,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private NoteAdapter adapter;
 
     private ActivityMainBinding binding;
-
+    public static List<NoteModel> models;
     private final int MenuItem_themeId = 0, MenuItem_viewId = 1;
 
     @Override
@@ -61,10 +70,12 @@ public class MainActivity extends AppCompatActivity {
         noteViewModels = new ViewModelProvider(this).get(NoteViewModels.class);
         if (PreferenceManager.getBoolean(MainActivity.this, Constants.layoutOrientation)) {
             binding.noteListRv.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+            runLayoutAnimation(binding.noteListRv);
             setAdapter();
             getData();
         } else {
             binding.noteListRv.setLayoutManager(new GridLayoutManager(MainActivity.this, 2));
+            runLayoutAnimation(binding.noteListRv);
             setAdapter();
             getData();
         }
@@ -77,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         noteViewModels.getAllWords().observe(MainActivity.this, new Observer<List<NoteModel>>() {
             @Override
             public void onChanged(List<NoteModel> noteModels) {
+                models = noteModels;
                 adapter.setNote(noteModels);
             }
         });
@@ -95,22 +107,47 @@ public class MainActivity extends AppCompatActivity {
         public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
             int position = viewHolder.getAdapterPosition();
 
-            Objects.requireNonNull(noteViewModels.getAllWords().getValue()).remove(position);
-            databaseWriteExecutor.execute(() -> {
-                NoteDao dao = INSTANCE.noteDao();
-//                dao.deleteById(viewHolder.itemVie);
-            });
-            getData();
+            final Dialog dialog = new Dialog(MainActivity.this);
+            dialog.setContentView(R.layout.alert_dialog_layout);
+            dialog.setCancelable(false);
+            Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
+            MaterialButton cancel = (MaterialButton) dialog.findViewById(R.id.cancel);
+            MaterialButton ok = (MaterialButton) dialog.findViewById(R.id.delete);
 
+            cancel.setOnClickListener(v -> {
+                dialog.dismiss();
+                getData();
+            });
+            ok.setOnClickListener(v -> {
+                databaseWriteExecutor.execute(() -> {
+                    NoteDao dao = INSTANCE.noteDao();
+                    dao.deleteById(models.get(position).getId());
+                });
+                getData();
+                dialog.dismiss();
+            });
+            dialog.show();
         }
     };
+
+
+    private void runLayoutAnimation(final RecyclerView recyclerView) {
+        if (recyclerView.getAdapter()!=null){
+            final Context context = recyclerView.getContext();
+            final LayoutAnimationController controller =
+                    AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation);
+            recyclerView.setLayoutAnimation(controller);
+            Objects.requireNonNull(recyclerView.getAdapter()).notifyDataSetChanged();
+            recyclerView.scheduleLayoutAnimation();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuItem theme = menu.add(0, MenuItem_themeId, 0, R.string.app_name);
         theme.setIcon(R.drawable.ic_theme_24dp);
         theme.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-
+        getData();
         MenuItem layout_orientation = menu.add(0, MenuItem_viewId, 1, R.string.app_name);
         if (PreferenceManager.getBoolean(MainActivity.this, Constants.layoutOrientation)) {
             layout_orientation.setIcon(R.drawable.ic_gride_view_24dp);
@@ -124,12 +161,14 @@ public class MainActivity extends AppCompatActivity {
             if (PreferenceManager.getBoolean(MainActivity.this, Constants.layoutOrientation)) {
                 PreferenceManager.saveBoolean(MainActivity.this, Constants.layoutOrientation, false);
                 layout_orientation.setIcon(R.drawable.ic_list_view_24dp);
-                binding.noteListRv.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                binding.noteListRv.setLayoutManager(new GridLayoutManager(MainActivity.this, 2));
+                runLayoutAnimation(binding.noteListRv);
                 getData();
             } else {
                 PreferenceManager.saveBoolean(MainActivity.this, Constants.layoutOrientation, true);
                 layout_orientation.setIcon(R.drawable.ic_gride_view_24dp);
-                binding.noteListRv.setLayoutManager(new GridLayoutManager(MainActivity.this, 2));
+                binding.noteListRv.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                runLayoutAnimation(binding.noteListRv);
                 getData();
             }
             return false;
@@ -162,4 +201,8 @@ public class MainActivity extends AppCompatActivity {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(binding.noteListRv);
     }
+
+//    public void showDialog(int position){
+//
+//    }
 }

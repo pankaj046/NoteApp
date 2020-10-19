@@ -41,8 +41,8 @@
             android:id="@+id/layout_reminder"
             app:layout_constraintTop_toBottomOf="@id/last_updated">
             <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
                 android:id="@+id/reminder_iv"
                 android:layout_centerInParent="true"
                 android:layout_alignParentStart="true"
@@ -54,6 +54,8 @@
                 android:layout_toEndOf="@id/reminder_iv"
                 android:textColor="@color/colorGray"
                 android:maxLines="1"
+                android:gravity="center_vertical"
+                android:layout_centerInParent="true"
                 android:text="dkjkxjf"
                 android:layout_marginStart="10dp"
                 android:id="@+id/reminder"/>
