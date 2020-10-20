@@ -6,6 +6,7 @@
     app:cardBackgroundColor="#f9fbff"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp"
+    android:id="@+id/note_mcv"
     android:layout_margin="4dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <androidx.constraintlayout.widget.ConstraintLayout

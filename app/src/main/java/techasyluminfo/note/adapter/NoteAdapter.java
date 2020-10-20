@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import techasyluminfo.note.databinding.NoteLayoutBinding;
+import techasyluminfo.note.listeners.NoteClickListener;
 import techasyluminfo.note.model.NoteModel;
 
 import static techasyluminfo.note.ui.AddNoteFragment.getMonth;
@@ -22,10 +23,12 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
     private LayoutInflater inflater;
     private List<NoteModel> list;
     private Context context;
+    private NoteClickListener noteClickListener;
 
-    public NoteAdapter(Context context) {
+    public NoteAdapter(Context context, NoteClickListener noteClickListener) {
         this.context = context;
         inflater = LayoutInflater.from(context);
+        this.noteClickListener= noteClickListener;
     }
 
     @NonNull
@@ -50,7 +53,7 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.ViewHolder> {
         }else {
             holder.noteLayoutBinding.layoutReminder.setVisibility(View.GONE);
         }
-
+        holder.noteLayoutBinding.noteMcv.setOnClickListener(view -> noteClickListener.getNoteId(list.get(position).getId()));
     }
 
     @Override

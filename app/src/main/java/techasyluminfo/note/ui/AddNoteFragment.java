@@ -46,10 +46,15 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
     private int dbDate;
     private int dbMonth;
     private int dbYear;
-
+    NoteModel noteModel;
     private boolean isReminderSet = false;
-
+    private static final String TAG = "AddNoteFragment";
     public AddNoteFragment() { }
+    public AddNoteFragment(NoteModel noteModel) {
+        this.noteModel = noteModel;
+
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,6 +70,24 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
         binding.timeEt.setKeyListener(null);
         binding.dateEt.setInputType(InputType.TYPE_NULL);
         binding.timeEt.setInputType(InputType.TYPE_NULL);
+
+        if (noteModel!=null){
+            binding.titleTv.setText(noteModel.getTitle());
+            binding.noteTv.setText(noteModel.getNote());
+            if (noteModel.isReminderSet()){
+                binding.reminderLayout.setVisibility(View.VISIBLE);
+                binding.reminderController.setChecked(true);
+                binding.dateEt.setText(noteModel.getDay() + " " + getMonth("" + noteModel.getMonth()) + " " + noteModel.getYear());
+                binding.timeEt.setText(noteModel.getHour() + ":" + noteModel.getMinute() + " " + noteModel.getAM_PM());
+            }else {
+                binding.reminderController.setChecked(false);
+                binding.reminderLayout.setVisibility(View.GONE);
+            }
+
+        }else {
+            Log.e(TAG, "onCreateView: null " );
+        }
+
         binding.reminderController.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -114,7 +137,6 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
             case R.id.save_iv:
                 String title = "" + binding.titleTv.getText();
                 String note = "" + binding.noteTv.getText();
-
                 if (title.isEmpty()) {
                     Toast.makeText(requireContext(), "Please Enter Title", Toast.LENGTH_SHORT).show();
                 } else if (note.isEmpty()) {
@@ -127,10 +149,19 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                         }else if (TextUtils.isEmpty(binding.timeEt.getText())){
                             Toast.makeText(requireContext(), "Please Enter Reminder Time", Toast.LENGTH_SHORT).show();
                         }else {
-                            addNoteInDB();
+                            if (noteModel!=null){
+                                updateNoteInDB();
+                            }else {
+                                addNoteInDB();
+                            }
+
                         }
                     } else {
-                        addNoteInDB();
+                        if (noteModel!=null){
+                            updateNoteInDB();
+                        }else {
+                            addNoteInDB();
+                        }
                     }
 
                 }
@@ -190,6 +221,25 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                     isReminderSet,
                     am_pm);
             dao.insert(noteModel);
+        });
+        dismiss();
+    }
+    private void updateNoteInDB() {
+
+        databaseWriteExecutor.execute(() -> {
+            NoteDao dao = INSTANCE.noteDao();
+            dao.update(""+binding.titleTv.getText(),
+                    ""+binding.noteTv.getText(),
+                    dbDate,
+                    dbMonth,
+                    dbYear,
+                    dbHour,
+                    dbMinute,
+                    ""+getDate(new Date().toString()),
+                    isReminderSet,
+                    am_pm,
+                    noteModel.getId()
+                    );
         });
         dismiss();
     }

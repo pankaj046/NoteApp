@@ -5,6 +5,7 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import java.util.List;
 
@@ -26,5 +27,19 @@ public interface NoteDao {
     LiveData<List<NoteModel>> getAllNotes();
 
     @Query("SELECT * from note_tables WHERE id = :id")
-    LiveData<NoteModel> getNoteById(long id);
+    NoteModel getNoteById(long id);
+
+    @Query("UPDATE note_tables SET title=:mTtitle, note=:mNote, day=:day, month=:month, year=:year, hour=:hour, minute=:minute, lastEdited=:mLastEdited, isReminderSet=:mIsReminderSet, ampm=:mAM_PM WHERE id = :id")
+    void update(
+                String mTtitle,
+                String mNote,
+                int day,
+                int month,
+                int year,
+                int hour,
+                int minute,
+                String mLastEdited,
+                boolean mIsReminderSet,
+                String mAM_PM,
+                long id);
 }

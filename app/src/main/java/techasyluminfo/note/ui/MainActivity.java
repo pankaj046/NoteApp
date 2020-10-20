@@ -35,6 +35,7 @@ import techasyluminfo.note.R;
 import techasyluminfo.note.adapter.NoteAdapter;
 import techasyluminfo.note.dao.NoteDao;
 import techasyluminfo.note.databinding.ActivityMainBinding;
+import techasyluminfo.note.listeners.NoteClickListener;
 import techasyluminfo.note.model.NoteModel;
 import techasyluminfo.note.util.Constants;
 import techasyluminfo.note.util.PreferenceManager;
@@ -195,8 +196,23 @@ public class MainActivity extends AppCompatActivity {
         placeSearchFragment.show(fm, "AddNoteFragment");
     }
 
+    private void addNote(NoteModel noteModel) {
+        AddNoteFragment placeSearchFragment = new AddNoteFragment(noteModel);
+        FragmentManager fm = this.getSupportFragmentManager();
+        placeSearchFragment.show(fm, "AddNoteFragment");
+    }
+
     private void setAdapter(){
-        adapter = new NoteAdapter(MainActivity.this);
+        adapter = new NoteAdapter(MainActivity.this, new NoteClickListener() {
+            @Override
+            public void getNoteId(long Id) {
+                databaseWriteExecutor.execute(() -> {
+                    NoteDao dao = INSTANCE.noteDao();
+                    addNote(dao.getNoteById(Id));
+                });
+
+            }
+        });
         binding.noteListRv.setAdapter(adapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(binding.noteListRv);

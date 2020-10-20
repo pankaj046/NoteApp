@@ -111,7 +111,6 @@
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:keyboardNavigationCluster="false"
                         android:id="@+id/date_et"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
