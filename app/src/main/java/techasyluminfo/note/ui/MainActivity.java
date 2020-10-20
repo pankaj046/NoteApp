@@ -1,6 +1,7 @@
 package techasyluminfo.note.ui;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.FragmentManager;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -63,6 +65,28 @@ public class MainActivity extends AppCompatActivity {
         setContentView(view);
         setSupportActionBar(binding.toolbar);
         binding.toolbar.setTitleTextColor(Color.WHITE);
+        binding.addNoteEfb.shrink();
+        binding.addNoteEfb.extend();
+
+//        binding.noteListRv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+//                    binding.addNoteEfb.extend();
+//                } else if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
+////                    binding.addNoteEfb.shrink();
+//                } else if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+////                    binding.addNoteEfb.shrink();
+//                }
+//            }
+//
+//            @Override
+//            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+//                super.onScrolled(recyclerView, dx, dy);
+//                binding.addNoteEfb.shrink();
+//            }
+//        });
 
 
         binding.addNoteEfb.setOnClickListener(v->{

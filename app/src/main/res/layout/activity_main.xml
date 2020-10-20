@@ -31,6 +31,7 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
@@ -40,6 +41,9 @@
         android:textColor="@android:color/white"
         app:backgroundTint="@color/colorRed"
         app:icon="@drawable/ic_add_note_24dp"
+        app:layout_anchor="@id/note_list_rv"
+        app:layout_anchorGravity="bottom|end|right"
+        app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"
         app:iconTint="@android:color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
