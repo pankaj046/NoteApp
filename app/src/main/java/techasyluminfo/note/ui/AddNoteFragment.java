@@ -1,9 +1,12 @@
 package techasyluminfo.note.ui;
 
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -31,7 +34,9 @@ import techasyluminfo.note.R;
 import techasyluminfo.note.dao.NoteDao;
 import techasyluminfo.note.databinding.FragmentAddNoteBinding;
 import techasyluminfo.note.model.NoteModel;
+import techasyluminfo.note.services.NotificationService;
 
+import static android.content.Context.ALARM_SERVICE;
 import static techasyluminfo.note.database.NoteRoomDatabase.INSTANCE;
 import static techasyluminfo.note.database.NoteRoomDatabase.databaseWriteExecutor;
 
@@ -49,7 +54,10 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
     NoteModel noteModel;
     private boolean isReminderSet = false;
     private static final String TAG = "AddNoteFragment";
-    public AddNoteFragment() { }
+
+    public AddNoteFragment() {
+    }
+
     public AddNoteFragment(NoteModel noteModel) {
         this.noteModel = noteModel;
 
@@ -70,22 +78,22 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
         binding.timeEt.setKeyListener(null);
         binding.dateEt.setInputType(InputType.TYPE_NULL);
         binding.timeEt.setInputType(InputType.TYPE_NULL);
-
-        if (noteModel!=null){
+        createNotification();
+        if (noteModel != null) {
             binding.titleTv.setText(noteModel.getTitle());
             binding.noteTv.setText(noteModel.getNote());
-            if (noteModel.isReminderSet()){
+            if (noteModel.isReminderSet()) {
                 binding.reminderLayout.setVisibility(View.VISIBLE);
                 binding.reminderController.setChecked(true);
                 binding.dateEt.setText(noteModel.getDay() + " " + getMonth("" + noteModel.getMonth()) + " " + noteModel.getYear());
                 binding.timeEt.setText(noteModel.getHour() + ":" + noteModel.getMinute() + " " + noteModel.getAM_PM());
-            }else {
+            } else {
                 binding.reminderController.setChecked(false);
                 binding.reminderLayout.setVisibility(View.GONE);
             }
 
-        }else {
-            Log.e(TAG, "onCreateView: null " );
+        } else {
+            Log.e(TAG, "onCreateView: null ");
         }
 
         binding.reminderController.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -141,25 +149,25 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                     Toast.makeText(requireContext(), "Please Enter Title", Toast.LENGTH_SHORT).show();
                 } else if (note.isEmpty()) {
                     Toast.makeText(requireContext(), "Please Enter Note", Toast.LENGTH_SHORT).show();
-                }else {
+                } else {
                     if (isReminderSet) {
 
-                        if (TextUtils.isEmpty(binding.dateEt.getText())){
+                        if (TextUtils.isEmpty(binding.dateEt.getText())) {
                             Toast.makeText(requireContext(), "Please Enter Reminder Date", Toast.LENGTH_SHORT).show();
-                        }else if (TextUtils.isEmpty(binding.timeEt.getText())){
+                        } else if (TextUtils.isEmpty(binding.timeEt.getText())) {
                             Toast.makeText(requireContext(), "Please Enter Reminder Time", Toast.LENGTH_SHORT).show();
-                        }else {
-                            if (noteModel!=null){
+                        } else {
+                            if (noteModel != null) {
                                 updateNoteInDB();
-                            }else {
+                            } else {
                                 addNoteInDB();
                             }
 
                         }
                     } else {
-                        if (noteModel!=null){
+                        if (noteModel != null) {
                             updateNoteInDB();
-                        }else {
+                        } else {
                             addNoteInDB();
                         }
                     }
@@ -176,9 +184,9 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                 DatePickerDialog dialog = new DatePickerDialog(
                         requireContext(), (datePicker, mYear,
                                            monthOfYear, dayOfMonth) -> {
-                            dbDate = dayOfMonth;
-                            dbMonth = monthOfYear;
-                            dbYear = mYear;
+                    dbDate = dayOfMonth;
+                    dbMonth = monthOfYear;
+                    dbYear = mYear;
                     binding.dateEt.setText(dayOfMonth + " " + getMonth("" + monthOfYear) + " " + mYear);
                 }, year, month, day);
                 dialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
@@ -210,37 +218,41 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
 
         databaseWriteExecutor.execute(() -> {
             NoteDao dao = INSTANCE.noteDao();
-            NoteModel noteModel = new NoteModel(""+binding.titleTv.getText(),
-                    ""+binding.noteTv.getText(),
+            NoteModel noteModel = new NoteModel("" + binding.titleTv.getText(),
+                    "" + binding.noteTv.getText(),
                     dbDate,
                     dbMonth,
                     dbYear,
                     dbHour,
                     dbMinute,
-                    ""+getDate(new Date().toString()),
+                    "" + getDate(new Date().toString()),
                     isReminderSet,
                     am_pm);
             dao.insert(noteModel);
+
         });
+        createNotification();
         dismiss();
     }
-    private void updateNoteInDB() {
 
+    private void updateNoteInDB() {
         databaseWriteExecutor.execute(() -> {
             NoteDao dao = INSTANCE.noteDao();
-            dao.update(""+binding.titleTv.getText(),
-                    ""+binding.noteTv.getText(),
+            dao.update("" + binding.titleTv.getText(),
+                    "" + binding.noteTv.getText(),
                     dbDate,
                     dbMonth,
                     dbYear,
                     dbHour,
                     dbMinute,
-                    ""+getDate(new Date().toString()),
+                    "" + getDate(new Date().toString()),
                     isReminderSet,
                     am_pm,
                     noteModel.getId()
-                    );
+            );
+
         });
+        createNotification();
         dismiss();
     }
 
@@ -248,7 +260,7 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
 //        Tue Jul 12 18:35:37 IST 2016
 //        String date = "Wed Sep 16 00:00:00 GMT+05:30 2020";
         String[] parts = date.split(" ");
-        return parts[2]+ " " +parts[1] +" "+parts[parts.length-1];
+        return parts[2] + " " + parts[1] + " " + parts[parts.length - 1];
     }
 
 
@@ -282,5 +294,29 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
             month = "Dec";
         }
         return month;
+    }
+
+
+    public void createNotification() {
+        Intent myIntent = new Intent(requireActivity(), NotificationService.class);
+        AlarmManager alarmManager = (AlarmManager) requireActivity().getSystemService(ALARM_SERVICE);
+        PendingIntent pendingIntent = PendingIntent.getService(requireContext(), 0, myIntent, 0);
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MINUTE, dbMinute);
+        calendar.set(Calendar.HOUR_OF_DAY, dbHour);
+        int value = -1;
+        if (am_pm.equalsIgnoreCase("AM")) {
+            value = 0;
+        } else if (am_pm.equalsIgnoreCase("PM")) {
+            value = 1;
+        }
+        calendar.set(Calendar.AM_PM, value);
+        calendar.add(Calendar.DAY_OF_MONTH, dbDate);
+        calendar.set(Calendar.YEAR, dbYear);
+        calendar.set(Calendar.MONTH, dbMonth);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
+//        alarmManager.setRepeating(AlarmManager. RTC_WAKEUP , calendar.getTimeInMillis() , 1000 * 60 , pendingIntent);
+
     }
 }
