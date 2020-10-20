@@ -201,8 +201,4 @@ public class MainActivity extends AppCompatActivity {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(binding.noteListRv);
     }
-
-//    public void showDialog(int position){
-//
-//    }
 }
