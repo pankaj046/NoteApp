@@ -12,7 +12,7 @@
     <ImageView
         android:layout_width="128dp"
         android:layout_height="128dp"
-        android:src="@drawable/ic_bell_40dp"
+        android:src="@drawable/ic_main"
         android:id="@+id/icon"
         android:layout_centerInParent="true"
         android:contentDescription="@string/app_name" />
