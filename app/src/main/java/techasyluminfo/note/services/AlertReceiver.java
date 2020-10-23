@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
 
@@ -22,6 +23,8 @@ public class AlertReceiver  extends BroadcastReceiver {
     String channelId = "";
     @Override
     public void onReceive(Context mContext, Intent intent) {
+
+        Uri sound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + mContext.getPackageName() + "/" + R.raw.notify);
         String Title = intent.getStringExtra(mContext.getString(R.string.alert_title));
         String content = intent.getStringExtra(mContext.getString(R.string.alert_content));
         channelId = mContext.getResources().getString(R.string.your_channel_id);
@@ -32,23 +35,27 @@ public class AlertReceiver  extends BroadcastReceiver {
 
         NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();
         bigText.bigText(content);
-        bigText.setBigContentTitle("");
-        bigText.setSummaryText("");
+        bigText.setBigContentTitle(Title);
+        bigText.setSummaryText(content);
 
         mBuilder.setContentIntent(pendingIntent);
         mBuilder.setSmallIcon(R.mipmap.ic_launcher_round);
         mBuilder.setContentTitle(Title);
         mBuilder.setContentText(content);
-        mBuilder.setSound(Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
-                + "://" + mContext.getPackageName() + "/raw/notify"));
+        mBuilder.setSound(sound);
         mBuilder.setPriority(Notification.PRIORITY_MAX);
         mBuilder.setStyle(bigText);
         mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
+            AudioAttributes attributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .build();
             NotificationChannel channel = new NotificationChannel(channelId,
                     "Alert Notification",
                     NotificationManager.IMPORTANCE_HIGH);
+            channel.enableLights(true);
+            channel.enableVibration(true);
+            channel.setSound(sound, attributes);
             mNotificationManager.createNotificationChannel(channel);
             mBuilder.setChannelId(channelId);
         }

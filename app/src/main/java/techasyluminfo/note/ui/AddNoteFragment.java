@@ -315,15 +315,15 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
     }
 
 
-    public void addReminder(int statrYear, int startMonth, int startDay,
-                            int startHour, int startMinut,  String title, String note){
+    public void addReminder(int startYear, int startMonth, int startDay,
+                            int startHour, int startMinute,  String title, String note){
         Calendar calender = Calendar.getInstance();
         calender.clear();
         calender.set(Calendar.MONTH, startMonth);
         calender.set(Calendar.DAY_OF_MONTH, startDay);
-        calender.set(Calendar.YEAR, statrYear);
+        calender.set(Calendar.YEAR, startYear);
         calender.set(Calendar.HOUR, startHour);
-        calender.set(Calendar.MINUTE, startMinut);
+        calender.set(Calendar.MINUTE, startMinute);
         calender.set(Calendar.SECOND, 00);
         AlarmManager alarmMgr = (AlarmManager)requireActivity().getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(requireContext(), AlertReceiver.class);
@@ -331,5 +331,6 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
         intent.putExtra(getString(R.string.alert_content), note);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(requireContext(), 0, intent, 0);
         alarmMgr.set(AlarmManager.RTC_WAKEUP, calender.getTimeInMillis(), pendingIntent);
+        Toast.makeText(requireContext(), "reminder is set", Toast.LENGTH_SHORT).show();
     }
 }
