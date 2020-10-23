@@ -6,14 +6,19 @@ import android.app.Dialog;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
+import android.provider.CalendarContract;
+import android.provider.CalendarContract.Events;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -25,15 +30,18 @@ import android.view.Window;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
+import java.util.TimeZone;
 
 import techasyluminfo.note.R;
 
 import techasyluminfo.note.dao.NoteDao;
 import techasyluminfo.note.databinding.FragmentAddNoteBinding;
 import techasyluminfo.note.model.NoteModel;
+import techasyluminfo.note.services.AlertReceiver;
 import techasyluminfo.note.services.NotificationService;
 
 import static android.content.Context.ALARM_SERVICE;
@@ -78,7 +86,7 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
         binding.timeEt.setKeyListener(null);
         binding.dateEt.setInputType(InputType.TYPE_NULL);
         binding.timeEt.setInputType(InputType.TYPE_NULL);
-        createNotification();
+
         if (noteModel != null) {
             binding.titleTv.setText(noteModel.getTitle());
             binding.noteTv.setText(noteModel.getNote());
@@ -231,7 +239,12 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
             dao.insert(noteModel);
 
         });
-        createNotification();
+        if (isReminderSet){
+            addReminder(
+                    dbYear, dbMonth, dbDate,
+                    dbHour, dbMinute,
+                    binding.titleTv.getText().toString(), binding.noteTv.getText().toString());
+        }
         dismiss();
     }
 
@@ -252,7 +265,12 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
             );
 
         });
-        createNotification();
+        if (isReminderSet){
+            addReminder(
+                    dbYear, dbMonth, dbDate,
+                    dbHour, dbMinute,
+                    binding.titleTv.getText().toString(), binding.noteTv.getText().toString());
+        }
         dismiss();
     }
 
@@ -297,26 +315,21 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
     }
 
 
-    public void createNotification() {
-        Intent myIntent = new Intent(requireActivity(), NotificationService.class);
-        AlarmManager alarmManager = (AlarmManager) requireActivity().getSystemService(ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getService(requireContext(), 0, myIntent, 0);
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MINUTE, dbMinute);
-        calendar.set(Calendar.HOUR_OF_DAY, dbHour);
-        int value = -1;
-        if (am_pm.equalsIgnoreCase("AM")) {
-            value = 0;
-        } else if (am_pm.equalsIgnoreCase("PM")) {
-            value = 1;
-        }
-        calendar.set(Calendar.AM_PM, value);
-        calendar.add(Calendar.DAY_OF_MONTH, dbDate);
-        calendar.set(Calendar.YEAR, dbYear);
-        calendar.set(Calendar.MONTH, dbMonth);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-//        alarmManager.setRepeating(AlarmManager. RTC_WAKEUP , calendar.getTimeInMillis() , 1000 * 60 , pendingIntent);
-
+    public void addReminder(int statrYear, int startMonth, int startDay,
+                            int startHour, int startMinut,  String title, String note){
+        Calendar calender = Calendar.getInstance();
+        calender.clear();
+        calender.set(Calendar.MONTH, startMonth);
+        calender.set(Calendar.DAY_OF_MONTH, startDay);
+        calender.set(Calendar.YEAR, statrYear);
+        calender.set(Calendar.HOUR, startHour);
+        calender.set(Calendar.MINUTE, startMinut);
+        calender.set(Calendar.SECOND, 00);
+        AlarmManager alarmMgr = (AlarmManager)requireActivity().getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(requireContext(), AlertReceiver.class);
+        intent.putExtra(getString(R.string.alert_title), title);
+        intent.putExtra(getString(R.string.alert_content), note);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(requireContext(), 0, intent, 0);
+        alarmMgr.set(AlarmManager.RTC_WAKEUP, calender.getTimeInMillis(), pendingIntent);
     }
 }

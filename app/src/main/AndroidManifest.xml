@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="techasyluminfo.note">
 
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -21,6 +24,9 @@
         <activity android:name=".ui.MainActivity"
             android:launchMode="singleTop">
         </activity>
+
+        <receiver android:name=".services.AlertReceiver" android:exported="true" android:enabled="true"
+            android:permission="TODO"> </receiver>
     </application>
 
 </manifest>
