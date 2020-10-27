@@ -65,28 +65,26 @@ public class MainActivity extends AppCompatActivity {
         setContentView(view);
         setSupportActionBar(binding.toolbar);
         binding.toolbar.setTitleTextColor(Color.WHITE);
-        binding.addNoteEfb.shrink();
-        binding.addNoteEfb.extend();
 
-//        binding.noteListRv.addOnScrollListener(new RecyclerView.OnScrollListener() {
-//            @Override
-//            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-//                super.onScrollStateChanged(recyclerView, newState);
-//                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-//                    binding.addNoteEfb.extend();
-//                } else if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
-////                    binding.addNoteEfb.shrink();
-//                } else if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-////                    binding.addNoteEfb.shrink();
-//                }
-//            }
-//
-//            @Override
-//            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-//                super.onScrolled(recyclerView, dx, dy);
-//                binding.addNoteEfb.shrink();
-//            }
-//        });
+        binding.noteListRv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    binding.addNoteEfb.extend();
+                } else if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
+//                    binding.addNoteEfb.shrink();
+                } else if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    binding.addNoteEfb.shrink();
+                }
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                binding.addNoteEfb.shrink();
+            }
+        });
 
 
         binding.addNoteEfb.setOnClickListener(v->{
@@ -113,6 +111,13 @@ public class MainActivity extends AppCompatActivity {
         noteViewModels.getAllWords().observe(MainActivity.this, new Observer<List<NoteModel>>() {
             @Override
             public void onChanged(List<NoteModel> noteModels) {
+                if (noteModels.size()>0){
+                    binding.noteListRv.setVisibility(View.VISIBLE);
+                    binding.emptyList.setVisibility(View.GONE);
+                }else {
+                    binding.emptyList.setVisibility(View.VISIBLE);
+                    binding.noteListRv.setVisibility(View.GONE);
+                }
                 models = noteModels;
                 adapter.setNote(noteModels);
             }
@@ -169,9 +174,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        MenuItem theme = menu.add(0, MenuItem_themeId, 0, R.string.app_name);
-        theme.setIcon(R.drawable.ic_theme_24dp);
-        theme.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+//        MenuItem theme = menu.add(0, MenuItem_themeId, 0, R.string.app_name);
+//        theme.setIcon(R.drawable.ic_theme_24dp);
+//        theme.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_IF_ROOM);
         getData();
         MenuItem layout_orientation = menu.add(0, MenuItem_viewId, 1, R.string.app_name);
         if (PreferenceManager.getBoolean(MainActivity.this, Constants.layoutOrientation)) {
@@ -199,10 +204,10 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-        theme.setOnMenuItemClickListener(menuItem -> {
-            Toast.makeText(this, "theme", Toast.LENGTH_SHORT).show();
-            return false;
-        });
+//        theme.setOnMenuItemClickListener(menuItem -> {
+//            Toast.makeText(this, "theme", Toast.LENGTH_SHORT).show();
+//            return false;
+//        });
 
         return super.onCreateOptionsMenu(menu);
     }

@@ -16,9 +16,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/layout_bg"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:id="@+id/empty_list"
+        android:visibility="gone"
+        android:padding="140dp"
+        android:src="@drawable/ic_broke"
+        android:contentDescription="@string/app_name" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:visibility="gone"
         android:id="@+id/note_list_rv"
         android:paddingTop="16dp"
         android:clipToPadding="false"
@@ -31,7 +43,6 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar" />
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
@@ -41,9 +52,7 @@
         android:textColor="@android:color/white"
         app:backgroundTint="@color/colorRed"
         app:icon="@drawable/ic_add_note_24dp"
-        app:layout_anchor="@id/note_list_rv"
-        app:layout_anchorGravity="bottom|end|right"
-        app:layout_behavior="@string/hide_bottom_view_on_scroll_behavior"
+        android:theme="@style/CustomExtendedFloating"
         app:iconTint="@android:color/white" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

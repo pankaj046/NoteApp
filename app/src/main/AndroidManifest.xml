@@ -2,8 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="techasyluminfo.note">
 
-    <uses-permission android:name="android.permission.READ_CALENDAR" />
-    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -25,8 +24,8 @@
             android:launchMode="singleTop">
         </activity>
 
-        <receiver android:name=".services.AlertReceiver" android:exported="true" android:enabled="true"
-            android:permission="TODO"> </receiver>
+        <receiver android:name=".services.AlertReceiver" android:exported="false" android:enabled="true">
+        </receiver>
     </application>
 
 </manifest>

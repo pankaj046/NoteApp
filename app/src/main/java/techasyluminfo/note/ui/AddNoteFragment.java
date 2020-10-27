@@ -34,7 +34,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
-import java.util.TimeZone;
 
 import techasyluminfo.note.R;
 
@@ -42,9 +41,7 @@ import techasyluminfo.note.dao.NoteDao;
 import techasyluminfo.note.databinding.FragmentAddNoteBinding;
 import techasyluminfo.note.model.NoteModel;
 import techasyluminfo.note.services.AlertReceiver;
-import techasyluminfo.note.services.NotificationService;
 
-import static android.content.Context.ALARM_SERVICE;
 import static techasyluminfo.note.database.NoteRoomDatabase.INSTANCE;
 import static techasyluminfo.note.database.NoteRoomDatabase.databaseWriteExecutor;
 

@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
@@ -19,15 +20,14 @@ import techasyluminfo.note.ui.MainActivity;
 
 public class AlertReceiver  extends BroadcastReceiver {
 
-    private NotificationManager mNotificationManager;
-    String channelId = "";
     @Override
     public void onReceive(Context mContext, Intent intent) {
 
-        Uri sound = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + mContext.getPackageName() + "/" + R.raw.notify);
         String Title = intent.getStringExtra(mContext.getString(R.string.alert_title));
         String content = intent.getStringExtra(mContext.getString(R.string.alert_content));
-        channelId = mContext.getResources().getString(R.string.your_channel_id);
+        String channelId = mContext.getResources().getString(R.string.channel_id);
+        CharSequence name = mContext.getResources().getString(R.string.channel_name);
+        String description = mContext.getResources().getString(R.string.channel_description);
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(mContext.getApplicationContext(), channelId);
         Intent ii = new Intent(mContext.getApplicationContext(), MainActivity.class);
@@ -39,26 +39,34 @@ public class AlertReceiver  extends BroadcastReceiver {
         bigText.setSummaryText(content);
 
         mBuilder.setContentIntent(pendingIntent);
-        mBuilder.setSmallIcon(R.mipmap.ic_launcher_round);
+        mBuilder.setSmallIcon(R.drawable.ic_main);
         mBuilder.setContentTitle(Title);
         mBuilder.setContentText(content);
-        mBuilder.setSound(sound);
+        mBuilder.setSound(Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
+                + "://" + mContext.getPackageName() + "/raw/notify"));
+        mBuilder.setColor(Color.RED);
         mBuilder.setPriority(Notification.PRIORITY_MAX);
         mBuilder.setStyle(bigText);
-        mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationChannel mChannel;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            AudioAttributes attributes = new AudioAttributes.Builder()
+            mChannel = new NotificationChannel(channelId, name, NotificationManager.IMPORTANCE_HIGH);
+            mChannel.setLightColor(Color.RED);
+            mChannel.enableLights(true);
+            mChannel.setShowBadge(true);
+            mChannel.setDescription(description);
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                     .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                     .build();
-            NotificationChannel channel = new NotificationChannel(channelId,
-                    "Alert Notification",
-                    NotificationManager.IMPORTANCE_HIGH);
-            channel.enableLights(true);
-            channel.enableVibration(true);
-            channel.setSound(sound, attributes);
-            mNotificationManager.createNotificationChannel(channel);
-            mBuilder.setChannelId(channelId);
+            mChannel.setSound(Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
+                    + "://" + mContext.getPackageName() + "/raw/notify"), audioAttributes);
+
+            if (mNotificationManager != null) {
+                mNotificationManager.createNotificationChannel( mChannel );
+            }
         }
-        mNotificationManager.notify(0, mBuilder.build());
+        assert mNotificationManager != null;
+        mNotificationManager.notify(1, mBuilder.build());
     }
 }

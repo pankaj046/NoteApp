@@ -15,7 +15,7 @@ import techasyluminfo.note.model.NoteModel;
 public interface NoteDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    void insert(NoteModel noteModel);
+    long insert(NoteModel noteModel);
 
     @Query("DELETE FROM note_tables")
     void deleteAll();

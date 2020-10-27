@@ -12,10 +12,11 @@
     <ImageView
         android:layout_width="128dp"
         android:layout_height="128dp"
-        android:src="@drawable/ic_main"
+        android:src="@drawable/ic_fav"
         android:id="@+id/icon"
         android:layout_centerInParent="true"
-        android:contentDescription="@string/app_name" />
+        android:contentDescription="@string/app_name"
+        android:layout_marginBottom="10dp"/>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
