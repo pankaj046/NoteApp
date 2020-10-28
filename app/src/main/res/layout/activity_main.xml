@@ -24,7 +24,7 @@
         android:id="@+id/empty_list"
         android:visibility="gone"
         android:padding="140dp"
-        android:src="@drawable/ic_broke"
+        android:src="@drawable/ic_empty"
         android:contentDescription="@string/app_name" />
 
     <androidx.recyclerview.widget.RecyclerView

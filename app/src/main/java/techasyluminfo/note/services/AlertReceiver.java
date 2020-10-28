@@ -12,6 +12,7 @@ import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 
@@ -39,14 +40,19 @@ public class AlertReceiver  extends BroadcastReceiver {
         bigText.setSummaryText(content);
 
         mBuilder.setContentIntent(pendingIntent);
-        mBuilder.setSmallIcon(R.drawable.ic_main);
+        mBuilder.setSmallIcon(R.drawable.ic_fav);
         mBuilder.setContentTitle(Title);
+
         mBuilder.setContentText(content);
         mBuilder.setSound(Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
-                + "://" + mContext.getPackageName() + "/raw/notify"));
+                + "://" + mContext.getPackageName() + "/raw/alarm_gentle"));
+        Log.e("jmbjgjg", "onReceive: " +Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
+                + "://" + mContext.getPackageName() + "/raw/alarm_gentle").toString() );
         mBuilder.setColor(Color.RED);
+        mBuilder.setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 });
         mBuilder.setPriority(Notification.PRIORITY_MAX);
         mBuilder.setStyle(bigText);
+        mBuilder.setAutoCancel(true);
         NotificationManager mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationChannel mChannel;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -60,7 +66,7 @@ public class AlertReceiver  extends BroadcastReceiver {
                     .setUsage(AudioAttributes.USAGE_NOTIFICATION)
                     .build();
             mChannel.setSound(Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
-                    + "://" + mContext.getPackageName() + "/raw/notify"), audioAttributes);
+                    + "://" + mContext.getPackageName() + "/raw/alarm_gentle"), audioAttributes);
 
             if (mNotificationManager != null) {
                 mNotificationManager.createNotificationChannel( mChannel );
