@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -34,6 +35,7 @@ import android.widget.Toast;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 import techasyluminfo.note.R;
@@ -317,7 +319,7 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
     public void addReminder(int startYear, int startMonth, int startDay,
                             int startHour, int startMinute,  String title, String note, long
                              id){
-        Calendar calender = Calendar.getInstance();
+        Calendar calender = Calendar.getInstance(Locale.getDefault());
         calender.clear();
         calender.set(Calendar.MONTH, startMonth);
         calender.set(Calendar.DAY_OF_MONTH, startDay);
@@ -331,25 +333,10 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
         intent.putExtra(Constants.description, note);
         intent.putExtra(Constants.id, id);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(requireActivity(), 0, intent, 0);
-        alarmMgr.set(AlarmManager.RTC_WAKEUP, calender.getTimeInMillis(), pendingIntent);
-    }
-
-    private static class AlarmScheduler extends AsyncTask<Long, Void, Long>{
-
-        @Override
-        protected Long doInBackground(Long... longs) {
-            return null;
+        if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+            alarmMgr.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calender.getTimeInMillis(), pendingIntent);
+        }else {
+            alarmMgr.set(AlarmManager.RTC_WAKEUP, calender.getTimeInMillis(), pendingIntent);
         }
-
-        @Override
-        protected void onPostExecute(Long aLong) {
-            super.onPostExecute(aLong);
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
     }
 }
