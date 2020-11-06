@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -41,6 +42,7 @@ import techasyluminfo.note.dao.NoteDao;
 import techasyluminfo.note.databinding.FragmentAddNoteBinding;
 import techasyluminfo.note.model.NoteModel;
 import techasyluminfo.note.services.AlertReceiver;
+import techasyluminfo.note.util.Constants;
 
 import static techasyluminfo.note.database.NoteRoomDatabase.INSTANCE;
 import static techasyluminfo.note.database.NoteRoomDatabase.databaseWriteExecutor;
@@ -56,17 +58,15 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
     private int dbDate;
     private int dbMonth;
     private int dbYear;
-    NoteModel noteModel;
+    private NoteModel noteModel;
     private boolean isReminderSet = false;
     private static final String TAG = "AddNoteFragment";
+    private  long id = -1;
 
-    public AddNoteFragment() {
-    }
+    public AddNoteFragment() { }
 
     public AddNoteFragment(NoteModel noteModel) {
         this.noteModel = noteModel;
-
-
     }
 
     @Override
@@ -128,13 +128,13 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
     @Override
     public void onActivityCreated(Bundle arg0) {
         super.onActivityCreated(arg0);
-        Objects.requireNonNull(Objects.requireNonNull(getDialog()).getWindow()).getAttributes().windowAnimations = R.style.DialogAnimation;
+        Objects.requireNonNull(getDialog()).getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        Dialog dialog = getDialog();
+        final Dialog dialog = getDialog();
         if (dialog != null) {
             Objects.requireNonNull(dialog.getWindow()).setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT);
@@ -156,7 +156,6 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                     Toast.makeText(requireContext(), "Please Enter Note", Toast.LENGTH_SHORT).show();
                 } else {
                     if (isReminderSet) {
-
                         if (TextUtils.isEmpty(binding.dateEt.getText())) {
                             Toast.makeText(requireContext(), "Please Enter Reminder Date", Toast.LENGTH_SHORT).show();
                         } else if (TextUtils.isEmpty(binding.timeEt.getText())) {
@@ -186,7 +185,7 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                 int year = cal.get(Calendar.YEAR);
                 int month = cal.get(Calendar.MONTH);
                 int day = cal.get(Calendar.DAY_OF_MONTH);
-                DatePickerDialog dialog = new DatePickerDialog(
+                final DatePickerDialog dialog = new DatePickerDialog(
                         requireContext(), (datePicker, mYear,
                                            monthOfYear, dayOfMonth) -> {
                     dbDate = dayOfMonth;
@@ -203,7 +202,7 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                 int mHour = c.get(Calendar.HOUR_OF_DAY);
                 int mMinute = c.get(Calendar.MINUTE);
 
-                TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(), (view1, hourOfDay, minute) -> {
+                final TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(), (view1, hourOfDay, minute) -> {
                     if (hourOfDay < 12) {
                         am_pm = "AM";
                     } else {
@@ -233,16 +232,18 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                     "" + getDate(new Date().toString()),
                     isReminderSet,
                     am_pm);
-            dao.insert(noteModel);
-
+            id = dao.insert(noteModel);
+            Log.e(TAG, "reminder 1 " +id );
+            if (isReminderSet){
+                addReminder(
+                        dbYear, dbMonth, dbDate,
+                        dbHour, dbMinute,
+                        ""+binding.titleTv.getText(), ""+binding.noteTv.getText(), id);
+            }
+            dismiss();
         });
-        if (isReminderSet){
-            addReminder(
-                    dbYear, dbMonth, dbDate,
-                    dbHour, dbMinute,
-                    binding.titleTv.getText().toString(), binding.noteTv.getText().toString());
-        }
-        dismiss();
+
+
     }
 
     private void updateNoteInDB() {
@@ -260,15 +261,16 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                     am_pm,
                     noteModel.getId()
             );
-
+            if (isReminderSet){
+                addReminder(
+                        dbYear, dbMonth, dbDate,
+                        dbHour, dbMinute,
+                        ""+binding.titleTv.getText(), ""+binding.noteTv.getText(), noteModel.getId());
+            }
+            dismiss();
         });
-        if (isReminderSet){
-            addReminder(
-                    dbYear, dbMonth, dbDate,
-                    dbHour, dbMinute,
-                    binding.titleTv.getText().toString(), binding.noteTv.getText().toString());
-        }
-        dismiss();
+
+
     }
 
     private String getDate(String date) {
@@ -313,7 +315,8 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
 
 
     public void addReminder(int startYear, int startMonth, int startDay,
-                            int startHour, int startMinute,  String title, String note){
+                            int startHour, int startMinute,  String title, String note, long
+                             id){
         Calendar calender = Calendar.getInstance();
         calender.clear();
         calender.set(Calendar.MONTH, startMonth);
@@ -321,13 +324,32 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
         calender.set(Calendar.YEAR, startYear);
         calender.set(Calendar.HOUR, startHour);
         calender.set(Calendar.MINUTE, startMinute);
-        calender.set(Calendar.SECOND, 00);
-        AlarmManager alarmMgr = (AlarmManager)requireActivity().getSystemService(Context.ALARM_SERVICE);
+        calender.set(Calendar.SECOND, 0);
+        AlarmManager alarmMgr = (AlarmManager) requireActivity().getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(requireContext(), AlertReceiver.class);
-        intent.putExtra(getString(R.string.alert_title), title);
-        intent.putExtra(getString(R.string.alert_content), note);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(requireContext(), 0, intent, 0);
+        intent.putExtra(Constants.title, title);
+        intent.putExtra(Constants.description, note);
+        intent.putExtra(Constants.id, id);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(requireActivity(), 0, intent, 0);
         alarmMgr.set(AlarmManager.RTC_WAKEUP, calender.getTimeInMillis(), pendingIntent);
-        Toast.makeText(requireContext(), "reminder is set", Toast.LENGTH_SHORT).show();
+    }
+
+    private static class AlarmScheduler extends AsyncTask<Long, Void, Long>{
+
+        @Override
+        protected Long doInBackground(Long... longs) {
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Long aLong) {
+            super.onPostExecute(aLong);
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
     }
 }

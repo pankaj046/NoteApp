@@ -18,20 +18,25 @@ import androidx.core.app.NotificationCompat;
 
 import techasyluminfo.note.R;
 import techasyluminfo.note.ui.MainActivity;
+import techasyluminfo.note.util.Constants;
 
 public class AlertReceiver  extends BroadcastReceiver {
+
+    private static final String TAG = "AlertReceiver";
 
     @Override
     public void onReceive(Context mContext, Intent intent) {
 
-        String Title = intent.getStringExtra(mContext.getString(R.string.alert_title));
-        String content = intent.getStringExtra(mContext.getString(R.string.alert_content));
+        String Title = intent.getStringExtra(Constants.title);
+        long id = intent.getLongExtra(Constants.title, -1);
+        String content = intent.getStringExtra(Constants.title);
         String channelId = mContext.getResources().getString(R.string.channel_id);
         CharSequence name = mContext.getResources().getString(R.string.channel_name);
         String description = mContext.getResources().getString(R.string.channel_description);
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(mContext.getApplicationContext(), channelId);
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mContext.getApplicationContext(), channelId);
         Intent ii = new Intent(mContext.getApplicationContext(), MainActivity.class);
+        ii.putExtra(Constants.title, id);
+        Log.e(TAG, "onReceive: "+id );
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, ii, 0);
 
         NotificationCompat.BigTextStyle bigText = new NotificationCompat.BigTextStyle();

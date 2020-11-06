@@ -18,6 +18,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     private NoteViewModels noteViewModels;
 
     private NoteAdapter adapter;
-
+    private static final String TAG = "MainActivity";
     private ActivityMainBinding binding;
     public static List<NoteModel> models;
     private final int MenuItem_themeId = 0, MenuItem_viewId = 1;
@@ -65,6 +66,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(view);
         setSupportActionBar(binding.toolbar);
         binding.toolbar.setTitleTextColor(Color.WHITE);
+        Bundle mBundle = new Bundle();
+        try {
+            Long id = mBundle.getLong(Constants.id);
+            if (id!=null && id>0)
+            databaseWriteExecutor.execute(() -> {
+                NoteDao dao = INSTANCE.noteDao();
+                addNote(dao.getNoteById(id));
+            });
+
+        }catch (Exception e){
+            Log.e(TAG, "onCreate: "+e);
+        }
 
         binding.noteListRv.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -220,15 +233,15 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void addNote() {
-        AddNoteFragment placeSearchFragment = new AddNoteFragment();
+        AddNoteFragment addNoteFragment = new AddNoteFragment();
         FragmentManager fm = this.getSupportFragmentManager();
-        placeSearchFragment.show(fm, "AddNoteFragment");
+        addNoteFragment.show(fm, "AddNoteFragment");
     }
 
     private void addNote(NoteModel noteModel) {
-        AddNoteFragment placeSearchFragment = new AddNoteFragment(noteModel);
+        AddNoteFragment addNoteFragment = new AddNoteFragment(noteModel);
         FragmentManager fm = this.getSupportFragmentManager();
-        placeSearchFragment.show(fm, "AddNoteFragment");
+        addNoteFragment.show(fm, "AddNoteFragment");
     }
 
     private void setAdapter(){

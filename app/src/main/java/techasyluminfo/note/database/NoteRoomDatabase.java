@@ -31,7 +31,6 @@ public abstract class NoteRoomDatabase extends RoomDatabase {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             NoteRoomDatabase.class, "note_db")
                             .addCallback(sRoomDatabaseCallback)
-                            .allowMainThreadQueries()
                             .build();
                 }
             }
@@ -48,11 +47,6 @@ public abstract class NoteRoomDatabase extends RoomDatabase {
             databaseWriteExecutor.execute(() -> {
                 NoteDao dao = INSTANCE.noteDao();
 //                dao.deleteAll();
-
-//                NoteModel word = new NoteModel("Hello","Hello",1,1,1,1,1,"Hello");
-//                dao.insert(word);
-//                word = new NoteModel("Hello","Hello",1,1,1,1,1,"Hello");
-//                dao.insert(word);
             });
         }
     };
