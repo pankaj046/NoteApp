@@ -29,6 +29,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 
@@ -46,6 +47,7 @@ import techasyluminfo.note.model.NoteModel;
 import techasyluminfo.note.services.AlertReceiver;
 import techasyluminfo.note.util.Constants;
 
+import static android.content.Context.INPUT_METHOD_SERVICE;
 import static techasyluminfo.note.database.NoteRoomDatabase.INSTANCE;
 import static techasyluminfo.note.database.NoteRoomDatabase.databaseWriteExecutor;
 
@@ -113,6 +115,16 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                     isReminderSet = false;
                     binding.reminderLayout.setVisibility(View.GONE);
                 }
+
+                try {
+                    InputMethodManager inputManager = (InputMethodManager)
+                            requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputManager.hideSoftInputFromWindow(requireActivity().getCurrentFocus().getWindowToken(),
+                            InputMethodManager.HIDE_NOT_ALWAYS);
+                } catch (Exception e) {
+                    Log.e(TAG, "onCheckedChanged: "+e );
+                }
+
             }
         });
         return view;
@@ -332,11 +344,12 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
         intent.putExtra(Constants.title, title);
         intent.putExtra(Constants.description, note);
         intent.putExtra(Constants.id, id);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(requireActivity(), 0, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(requireActivity(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
             alarmMgr.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calender.getTimeInMillis(), pendingIntent);
         }else {
             alarmMgr.set(AlarmManager.RTC_WAKEUP, calender.getTimeInMillis(), pendingIntent);
         }
+        Log.e(TAG, "addReminder: jhyhghgghghghf \n"+id + "\n" );
     }
 }
