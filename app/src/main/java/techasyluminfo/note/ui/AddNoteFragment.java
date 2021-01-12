@@ -1,5 +1,6 @@
 package techasyluminfo.note.ui;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
@@ -73,6 +74,7 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
         this.noteModel = noteModel;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -156,6 +158,7 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
         }
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View view) {
 
@@ -199,7 +202,7 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                 int year = cal.get(Calendar.YEAR);
                 int month = cal.get(Calendar.MONTH);
                 int day = cal.get(Calendar.DAY_OF_MONTH);
-                final DatePickerDialog dialog = new DatePickerDialog(
+                @SuppressLint("SetTextI18n") final DatePickerDialog dialog = new DatePickerDialog(
                         requireContext(), (datePicker, mYear,
                                            monthOfYear, dayOfMonth) -> {
                     dbDate = dayOfMonth;
@@ -216,7 +219,7 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                 int mHour = c.get(Calendar.HOUR_OF_DAY);
                 int mMinute = c.get(Calendar.MINUTE);
 
-                final TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(), (view1, hourOfDay, minute) -> {
+                @SuppressLint("SetTextI18n") final TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(), (view1, hourOfDay, minute) -> {
                     if (hourOfDay < 12) {
                         am_pm = "AM";
                     } else {
