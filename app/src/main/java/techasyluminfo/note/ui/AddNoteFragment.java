@@ -83,8 +83,8 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
 
         binding.closeIv.setOnClickListener(v -> dismiss());
         binding.saveIv.setOnClickListener(this);
-        binding.dateEt.setOnClickListener(this);
-        binding.timeEt.setOnClickListener(this);
+        binding.dateRl.setOnClickListener(this);
+        binding.timeRl.setOnClickListener(this);
         binding.dateEt.setKeyListener(null);
         binding.timeEt.setKeyListener(null);
         binding.dateEt.setInputType(InputType.TYPE_NULL);
@@ -196,7 +196,7 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                 }
                 break;
 
-            case R.id.date_et:
+            case R.id.date_rl:
 
                 Calendar cal = Calendar.getInstance();
                 int year = cal.get(Calendar.YEAR);
@@ -214,7 +214,7 @@ public class AddNoteFragment extends DialogFragment implements View.OnClickListe
                 dialog.show();
                 break;
 
-            case R.id.time_et:
+            case R.id.time_rl:
                 final Calendar c = Calendar.getInstance();
                 int mHour = c.get(Calendar.HOUR_OF_DAY);
                 int mMinute = c.get(Calendar.MINUTE);

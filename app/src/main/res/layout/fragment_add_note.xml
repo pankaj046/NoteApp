@@ -90,19 +90,27 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="16sp"
                 android:layout_below="@+id/note_layout"/>
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginTop="16dp"
-                android:visibility="gone"
+                android:visibility="visible"
                 android:id="@+id/reminder_layout"
                 android:layout_below="@+id/reminder_controller">
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginEnd="50dp"
+                    android:elevation="1dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:id="@+id/date_rl"/>
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:clickable="true"
-                    android:focusable="true"
+                    android:clickable="false"
+                    android:focusable="false"
                     android:id="@+id/set_date_layout"
                     android:hint="@string/set_date"
                     app:endIconMode="clear_text"
@@ -110,31 +118,40 @@
                     app:startIconContentDescription="@string/set_date">
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="56dp"
                         android:inputType="none"
                         android:id="@+id/date_et"/>
                 </com.google.android.material.textfield.TextInputLayout>
-
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_below="@+id/date_rl"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="50dp"
+                    android:elevation="1dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:id="@+id/time_rl"/>
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/set_date_layout"
                     android:layout_marginTop="16dp"
                     android:id="@+id/set_time_layout"
-                    android:clickable="true"
-                    android:focusable="true"
+                    android:clickable="false"
+                    android:focusable="false"
                     android:hint="@string/set_time"
                     app:endIconMode="clear_text"
                     app:startIconDrawable="@drawable/ic_watch_24dp"
                     app:startIconContentDescription="@string/set_time">
                     <com.google.android.material.textfield.TextInputEditText
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="56dp"
                         android:cursorVisible="false"
                         android:inputType="none"
                         android:id="@+id/time_et"/>
                 </com.google.android.material.textfield.TextInputLayout>
-            </LinearLayout>
+            </RelativeLayout>
 
         </RelativeLayout>
     </ScrollView>
